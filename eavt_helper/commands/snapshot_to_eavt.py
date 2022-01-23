@@ -15,7 +15,7 @@ def snapshot_to_eavt(snapshot_path, id_col="id", tstamp_col="run", out_path="out
     snapshot_df = read_dataframe_from_csv(snapshot_path)
     df = (snapshot_df.pipe(with_set_index, [id_col, tstamp_col])
                      .pipe(with_stack_reset_index)
-                     .pipe(with_rename_cols_eavt)
+                     .pipe(with_rename_cols_eavt, id_col)
                      .pipe(with_order_eavt)
                      .pipe(with_v_lag)
                      .pipe(with_different_v_lag)
@@ -28,8 +28,8 @@ def with_set_index(df, list_index):
 def with_stack_reset_index(df):
     return df.stack().reset_index()
 
-def with_rename_cols_eavt(df):
-    return df.rename(columns={'id': 'e', 'level_2': 'a', 0: 'v', 'run': 't'})
+def with_rename_cols_eavt(df, id_col):
+    return df.rename(columns={id_col: 'e', 'level_2': 'a', 0: 'v', 'run': 't'})
 
 def with_order_eavt(df):
     return df[['e', 'a', 'v', 't']]
