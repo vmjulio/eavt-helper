@@ -35,6 +35,7 @@ def with_row_expiration_tstamp(df):
     return df
 
 def with_current_row_indicator(df):
+    df['row_version'] = (df.sort_values(['t']).groupby(['e']).cumcount() + 1)
     df['current_row_indicator'] = (df.sort_values(['t'], ascending=False)\
                                      .groupby(['e']).cumcount() + 1) == 1
     return df
