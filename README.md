@@ -19,7 +19,7 @@ Clone the repository. Then browse to the project folder install the package in t
 To convert a snapshot table into an EAVT log, make sure your csv have an unique column identifying the entities, and a date (or timestamp) column with the information of the time of the entity snapshot:
 
 ```bash
-$ eavt_helper snapshot-to-eavt snapshot_table.csv id_col time_col out_eavt_file.csv
+$ eavt-helper snapshot-to-eavt snapshot_table.csv id_col time_col out_eavt_file.csv
 ```
 
 ---
@@ -29,5 +29,5 @@ $ eavt_helper snapshot-to-eavt snapshot_table.csv id_col time_col out_eavt_file.
 To convert an EAVT log into a Slowly Changing Dimension:
 
 ```bash
-$ eavt_helper eavt-to-scd eavt_log.csv out_scd_file.csv
+$ eavt-helper eavt-to-scd eavt_log.csv out_scd_file.csv
 ```
