@@ -27,7 +27,10 @@ def with_stack_reset_index(df):
     return df.stack().reset_index()
 
 def with_ffil(df):
-    return df.ffill(axis=0)
+    cols = list(df)
+    for c in cols:
+        df[c] = df.groupby(['e'])[c].ffill()
+    return df
 
 def with_row_expiration_tstamp(df):
     df['row_expiration_tstamp'] = df.sort_values(by=['t'], ascending=False)\
