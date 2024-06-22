@@ -2,6 +2,7 @@
 Sub command to transform an eavt log into a slowly changing dimension
 """
 import eavt_helper.help as h
+from eavt_helper.classes.eavt import EAVT
 import click
 
 

@@ -1,10 +1,9 @@
-from eavt_helper.utils import (read_dataframe_from_csv, write_dataframe_to_csv)
 import pandas as pd
 
 
 class EAVT:
     def __init__(self, eavt_path: str):
-        self.df = pd.from_csv(eavt_path)
+        self.df = pd.read_csv(eavt_path)
 
     def transform_to_scd2(self) -> pd.DataFrame:
         return (self.df.pipe(self._with_pivot_eavt)
