@@ -1,16 +1,20 @@
 """
 Sub command to transform a snapshot into an eavt log
 """
-from eavt_helper.utils import (read_dataframe_from_csv,
-                               write_dataframe_to_csv)
+from eavt_helper.utils import (read_dataframe_from_csv, write_dataframe_to_csv)
+import eavt_helper.help as h
 import click
 
 
 @click.command()
-@click.argument("snapshot_path")
-@click.argument("id_col")
-@click.argument("tstamp_col")
-@click.argument("out_path")
+@click.option("-p", "--snapshot-path", "snapshot_path",
+              type=str, required=True, help=h.SNAPSHOT__IN_PATH)
+@click.option("-i", "--id-column", "id_col",
+              type=str, required=True, help=h.SNAPSHOT__ID_COLUMN)
+@click.option("-t", "--tstamp-column", "tstamp_col",
+              type=str, required=True, help=h.SNAPSHOT__TSTAMP_COLUMN)
+@click.option("-o", "--out-path", "out_path",
+              type=str, required=True, help=h.SNAPSHOT__OUT_PATH)
 def snapshot_to_eavt(snapshot_path, id_col="id", tstamp_col="run", out_path="out.csv"):
     snapshot_df = read_dataframe_from_csv(snapshot_path)
     df = (snapshot_df.pipe(with_set_index, [id_col, tstamp_col])
