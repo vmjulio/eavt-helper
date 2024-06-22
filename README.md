@@ -17,11 +17,13 @@ Clone the repository. Then browse to the project folder install the package in t
 ### Snapshot to EAVT log
 To convert a snapshot table into an EAVT log, make sure your csv has an unique column identifying the entities (--id-col), and a date or timestamp column with the information of the time of the entity snapshot (--tstamp-col):
 ```bash
-eavt-helper snapshot-to-eavt --id-col user_id --tstamp-col row_effective_tstamp --snapshot-path snapshot.csv --out-path output.csv ```
+eavt-helper snapshot-to-eavt --id-col user_id --tstamp-col row_effective_tstamp --snapshot-path snapshot.csv --out-path output.csv
+```
 
 Or, alternatively:
 ```bash
-eavt-helper snapshot-to-eavt -i user_id -t row_effective_tstamp -p snapshot.csv -o output.csv ```
+eavt-helper snapshot-to-eavt -i user_id -t row_effective_tstamp -p snapshot.csv -o output.csv
+```
 
 ---
 
