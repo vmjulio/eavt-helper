@@ -70,19 +70,33 @@ class Snapshot:
             raise
 
     def _process_in_chunks(self, chunk_size: int) -> pd.DataFrame:
-        """Process large datasets in chunks to manage memory usage."""
+        """Process large datasets in chunks of entities to manage memory usage.
+
+        Chunking is done by entity ID rather than by row index. This ensures
+        an entity's full history is always contained within a single chunk,
+        which is required for the lag-based change detection in
+        `_with_v_lag` / `_with_different_v_lag` to be correct.
+        """
+        entities = self.df[self.id_col].unique()
+        # Approximate entities-per-chunk from the requested row chunk_size,
+        # using the average rows-per-entity. Always at least 1 entity per chunk.
+        avg_rows_per_entity = max(1, len(self.df) / max(1, len(entities)))
+        entities_per_chunk = max(1, int(chunk_size / avg_rows_per_entity))
+
         results = []
-        total_chunks = (len(self.df) + chunk_size - 1) // chunk_size
-        
-        with click.progressbar(range(total_chunks), label='Processing chunks') as bar:
-            for i in bar:
-                start_idx = i * chunk_size
-                end_idx = min((i + 1) * chunk_size, len(self.df))
-                chunk_df = self.df.iloc[start_idx:end_idx].copy()
-                
+        total_entity_chunks = (len(entities) + entities_per_chunk - 1) // entities_per_chunk
+
+        with click.progressbar(range(0, len(entities), entities_per_chunk),
+                               label='Processing entity chunks',
+                               length=total_entity_chunks) as bar:
+            for start in bar:
+                end = min(start + entities_per_chunk, len(entities))
+                chunk_entities = entities[start:end]
+                chunk_df = self.df[self.df[self.id_col].isin(chunk_entities)].copy()
+
                 processed_chunk = self._transform_single_chunk(chunk_df)
                 results.append(processed_chunk)
-        
+
         click.echo("✓ Combining processed chunks...")
         return pd.concat(results, ignore_index=True)
 
