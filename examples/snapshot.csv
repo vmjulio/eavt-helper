@@ -1,0 +1,10 @@
+user_id,row_effective_tstamp,name,city,plan
+1,2024-01-01,Ana,NYC,free
+1,2024-02-01,Ana,NYC,pro
+1,2024-03-01,Ana,LA,pro
+2,2024-01-01,Bruno,SF,free
+2,2024-02-01,Bruno,SF,free
+2,2024-03-01,Bruno,SF,pro
+3,2024-01-01,Carla,Chicago,pro
+3,2024-02-01,Carla,Chicago,pro
+3,2024-03-01,Carla,NYC,pro

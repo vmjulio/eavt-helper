@@ -1,0 +1,8 @@
+id,row_effective_tstamp,city,name,plan,row_expiration_tstamp,row_version,current_row_indicator
+1,2024-01-01,NYC,Ana,free,2024-02-01,1,False
+1,2024-02-01,NYC,Ana,pro,2024-03-01,2,False
+1,2024-03-01,LA,Ana,pro,,3,True
+2,2024-01-01,SF,Bruno,free,2024-03-01,1,False
+2,2024-03-01,SF,Bruno,pro,,2,True
+3,2024-01-01,Chicago,Carla,pro,2024-03-01,1,False
+3,2024-03-01,NYC,Carla,pro,,2,True
