@@ -99,11 +99,28 @@ class TestCLIIntegration:
     def test_cli_error_handling(self):
         """Test that CLI handles errors gracefully."""
         runner = CliRunner()
-        
+
         # Test snapshot-to-eavt with missing required arguments
         result = runner.invoke(cli, ['snapshot-to-eavt'])
         assert result.exit_code != 0
-        
+
         # Test eavt-to-scd with missing required arguments
         result = runner.invoke(cli, ['eavt-to-scd'])
-        assert result.exit_code != 0 
+        assert result.exit_code != 0
+
+
+class TestVersionFlag:
+    """Test the --version flag on the top-level CLI."""
+
+    def test_version_flag_prints_version(self):
+        from click.testing import CliRunner
+
+        from eavt_helper import __version__
+        from eavt_helper.main import cli
+
+        runner = CliRunner()
+        result = runner.invoke(cli, ["--version"])
+
+        assert result.exit_code == 0
+        assert __version__ in result.output
+        assert "eavt-helper" in result.output
