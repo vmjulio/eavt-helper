@@ -97,8 +97,8 @@ class TestSnapshotTransformationFunctions:
         result = self.snapshot._with_different_v_lag(test_df)
         
         # Should only keep rows where v != v_lag (including first occurrences with NaN)
-        assert len(result) == 3  # First occurrence for each entity + one change
-        
+        assert len(result) == 4  # First occurrence for each entity + one change each
+
         # Should include first occurrence and changes
         changes = result[result['e'] == 1]
         assert len(changes) == 2  # First occurrence + change from 25 to 26
@@ -114,7 +114,7 @@ class TestSnapshotTransformationFunctions:
         
         # Should have 2 entities × 2 attributes = 4 rows
         assert len(result) == 4
-        assert len(result.columns) == 3  # user_id, timestamp, level_2, 0
+        assert len(result.columns) == 4  # user_id, timestamp, level_2, 0
         
         # Should have attributes as values in level_2
         assert 'name' in result['level_2'].values

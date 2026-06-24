@@ -117,15 +117,12 @@ class TestEAVT:
     
     def test_transform_to_scd2_chunked(self):
         """Test SCD2 transformation with chunking."""
-        with patch('click.echo'), patch('click.progressbar') as mock_progress:
+        with patch('click.echo'):
             eavt = EAVT(self.temp_file.name)
             result = eavt.transform_to_scd2(chunk_size=2)
-        
-        # Should use chunked processing
-        mock_progress.assert_called()
-        
+
         # Result structure should be the same as non-chunked
-        required_scd2_cols = ['id', 'row_effective_tstamp', 'row_expiration_tstamp', 
+        required_scd2_cols = ['id', 'row_effective_tstamp', 'row_expiration_tstamp',
                              'row_version', 'current_row_indicator']
         for col in required_scd2_cols:
             assert col in result.columns

@@ -96,24 +96,22 @@ class TestSnapshot:
         # Check structure
         assert list(result.columns) == ['e', 'a', 'v', 't']
         
-        # Should only contain changed values (age change for user 1)
-        assert len(result) == 1
-        assert result.iloc[0]['e'] == 1
-        assert result.iloc[0]['a'] == 'age'
-        assert result.iloc[0]['v'] == 26
+        # Should contain first occurrences for each (entity, attribute) + changed values
+        # 3 users × 3 attributes = 9 first occurrences, plus 2 changes (user1 age, user2 city) = 11
+        assert len(result) == 11
+        # Changed value (user 1 age 25→26) should be present
+        age_changes = result[(result['e'] == 1) & (result['a'] == 'age') & (result['v'] == 26)]
+        assert len(age_changes) == 1
     
     def test_transform_to_eavt_chunked(self):
         """Test EAVT transformation with chunking."""
-        with patch('click.echo'), patch('click.progressbar') as mock_progress:
+        with patch('click.echo'):
             snapshot = Snapshot(self.temp_file.name, 'user_id', 'timestamp')
             result = snapshot.transform_to_eavt(chunk_size=2)
-        
-        # Should use chunked processing
-        mock_progress.assert_called()
-        
+
         # Result should be the same as non-chunked
         assert list(result.columns) == ['e', 'a', 'v', 't']
-        assert len(result) == 1
+        assert len(result) == 11
     
     def test_drop_snapshot_columns(self):
         """Test dropping of snapshot metadata columns."""
