@@ -1,7 +1,7 @@
 # EAVT Helper Makefile
 # Simple commands for development and testing
 
-.PHONY: help install test test-coverage clean lint format
+.PHONY: help install test test-coverage clean lint format typecheck
 
 help:
 	@echo "🛠️  EAVT Helper Development Commands"
@@ -10,6 +10,7 @@ help:
 	@echo "make test           - Run all tests"
 	@echo "make test-coverage  - Run tests with coverage report"
 	@echo "make lint           - Run code linting"
+	@echo "make typecheck      - Run mypy type checks"
 	@echo "make format         - Format code with ruff"
 	@echo "make clean          - Clean up build artifacts"
 
@@ -28,6 +29,10 @@ test-coverage:
 lint:
 	@echo "🔍 Running ruff lint..."
 	ruff check eavt_helper tests
+
+typecheck:
+	@echo "🔎 Running mypy type checks..."
+	mypy eavt_helper
 
 format:
 	@echo "🎨 Formatting with ruff..."

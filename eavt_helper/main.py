@@ -10,7 +10,7 @@ from eavt_helper.commands import eavt_to_scd, snapshot_to_eavt
     help="Convert snapshots to EAVT logs and EAVT logs to Slowly Changing Dimensions (SCD Type 2)."
 )
 @click.version_option(version=__version__, prog_name="eavt-helper")
-def cli():
+def cli() -> None:
     pass
 
 

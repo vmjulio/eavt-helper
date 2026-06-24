@@ -101,7 +101,7 @@ class EAVT:
             .pipe(self._with_rename_col, "t", "row_effective_tstamp")
         )
 
-    def _with_pivot_eavt(self, df):
+    def _with_pivot_eavt(self, df: pd.DataFrame) -> pd.DataFrame:
         """Pivot EAVT format to wide format."""
         try:
             return df.pivot(index=["e", "t"], columns="a", values="v")
@@ -111,10 +111,10 @@ class EAVT:
                 "This may indicate duplicate e,a,t combinations."
             ) from e
 
-    def _with_stack_reset_index(self, df):
+    def _with_stack_reset_index(self, df: pd.DataFrame) -> pd.DataFrame:
         return df.stack().reset_index()
 
-    def _with_ffil(self, df):
+    def _with_ffil(self, df: pd.DataFrame) -> pd.DataFrame:
         """Forward fill values within each entity group."""
         cols = list(df.columns)
         # Skip the index columns 'e' and 't'
@@ -124,14 +124,14 @@ class EAVT:
             df[c] = df.groupby(["e"])[c].ffill()
         return df
 
-    def _with_row_expiration_tstamp(self, df):
+    def _with_row_expiration_tstamp(self, df: pd.DataFrame) -> pd.DataFrame:
         """Add row expiration timestamp (next row's effective timestamp)."""
         df["row_expiration_tstamp"] = (
             df.sort_values(by=["t"], ascending=False).groupby(["e"])["t"].shift(1)
         )
         return df
 
-    def _with_current_row_indicator(self, df):
+    def _with_current_row_indicator(self, df: pd.DataFrame) -> pd.DataFrame:
         """Add row version and current row indicator."""
         df["row_version"] = df.sort_values(["t"]).groupby(["e"]).cumcount() + 1
         df["current_row_indicator"] = (
@@ -139,8 +139,8 @@ class EAVT:
         ) == 1
         return df
 
-    def _with_reset_index(self, df):
+    def _with_reset_index(self, df: pd.DataFrame) -> pd.DataFrame:
         return df.reset_index()
 
-    def _with_rename_col(self, df, col_from, col_to):
+    def _with_rename_col(self, df: pd.DataFrame, col_from: str, col_to: str) -> pd.DataFrame:
         return df.rename(columns={col_from: col_to})

@@ -14,7 +14,7 @@ from eavt_helper.classes.eavt import EAVT
 @click.option("-p", "--eavt-path", "eavt_path", type=str, required=True, help=h.EAVT__IN_PATH)
 @click.option("-o", "--out-path", "out_path", type=str, required=True, help=h.EAVT__OUT_PATH)
 @click.option("--chunk-size", "chunk_size", type=int, help=h.EAVT__CHUNK_SIZE)
-def eavt_to_scd(eavt_path, out_path, chunk_size=None):
+def eavt_to_scd(eavt_path: str, out_path: str, chunk_size: int | None = None) -> None:
     """Convert EAVT log to Slowly Changing Dimension Type 2 format."""
     try:
         click.echo("🔄 Starting EAVT to SCD2 transformation...")

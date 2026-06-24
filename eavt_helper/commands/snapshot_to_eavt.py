@@ -20,7 +20,7 @@ from eavt_helper.classes.snapshot import Snapshot
 )
 @click.option("-o", "--out-path", "out_path", type=str, required=True, help=h.SNAPSHOT__OUT_PATH)
 @click.option("--chunk-size", "chunk_size", type=int, help=h.SNAPSHOT__CHUNK_SIZE)
-def snapshot_to_eavt(snapshot_path, id_col, tstamp_col, out_path, chunk_size=None):
+def snapshot_to_eavt(snapshot_path: str, id_col: str, tstamp_col: str, out_path: str, chunk_size: int | None = None) -> None:
     """Convert snapshot table to EAVT log format."""
     try:
         click.echo("🔄 Starting snapshot to EAVT transformation...")

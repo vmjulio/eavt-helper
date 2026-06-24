@@ -123,7 +123,7 @@ class Snapshot:
             .pipe(self._with_drop_v_lag)
         )
 
-    def _with_drop_snapshot_columns(self, df):
+    def _with_drop_snapshot_columns(self, df: pd.DataFrame) -> pd.DataFrame:
         """Drop common snapshot metadata columns."""
         columns_to_drop = ["row_version", "current_row_indicator", "row_expiration_tstamp"]
         existing_columns_to_drop = [col for col in columns_to_drop if col in df.columns]
@@ -133,24 +133,24 @@ class Snapshot:
 
         return df
 
-    def _with_set_index(self, df, list_index):
+    def _with_set_index(self, df: pd.DataFrame, list_index: list[str]) -> pd.DataFrame:
         return df.set_index(list_index)
 
-    def _with_stack_reset_index(self, df):
+    def _with_stack_reset_index(self, df: pd.DataFrame) -> pd.DataFrame:
         return df.stack().reset_index()
 
-    def _with_rename_cols_eavt(self, df, id_col, tstamp_col):
+    def _with_rename_cols_eavt(self, df: pd.DataFrame, id_col: str, tstamp_col: str) -> pd.DataFrame:
         return df.rename(columns={id_col: "e", "level_2": "a", 0: "v", tstamp_col: "t"})
 
-    def _with_order_eavt(self, df):
+    def _with_order_eavt(self, df: pd.DataFrame) -> pd.DataFrame:
         return df[["e", "a", "v", "t"]]
 
-    def _with_v_lag(self, df):
+    def _with_v_lag(self, df: pd.DataFrame) -> pd.DataFrame:
         df["v_lag"] = df.sort_values(by=["t"], ascending=True).groupby(["e", "a"])["v"].shift(1)
         return df
 
-    def _with_different_v_lag(self, df):
+    def _with_different_v_lag(self, df: pd.DataFrame) -> pd.DataFrame:
         return df[df["v"] != df["v_lag"]]
 
-    def _with_drop_v_lag(self, df):
+    def _with_drop_v_lag(self, df: pd.DataFrame) -> pd.DataFrame:
         return df.drop(columns=["v_lag"])

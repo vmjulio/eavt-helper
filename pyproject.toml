@@ -84,3 +84,15 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["B011", "SIM115"]  # asserts in tests are fine; NamedTemporaryFile pattern requires explicit .close()
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["eavt_helper"]
+# pandas has incomplete stubs; allow untyped calls when interacting with it.
+disallow_untyped_calls = false
+warn_return_any = false
+
+[[tool.mypy.overrides]]
+module = ["pandas.*", "click.*"]
+ignore_missing_imports = true
