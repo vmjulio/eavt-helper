@@ -1,174 +1,88 @@
-# EAVT Helper CLI
+# eavt-helper
 
-A robust CLI tool to convert snapshots into EAVT logs, and EAVT logs into Slowly Changing Dimensions (SCD Type 2).
+[![CI](https://github.com/vmjulio/eavt-helper/actions/workflows/ci.yml/badge.svg)](https://github.com/vmjulio/eavt-helper/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python: 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
 
-## Features
+A small CLI for converting between three common ways of representing entity history over time:
 
-- ✅ **Snapshot to EAVT conversion**: Transform snapshot tables into efficient EAVT logs
-- ✅ **EAVT to SCD2 conversion**: Convert EAVT logs into Slowly Changing Dimension Type 2 format
-- ✅ **Memory-efficient processing**: Handle large datasets with chunked processing
-- ✅ **Comprehensive validation**: Input validation and error handling
-- ✅ **Progress tracking**: Visual progress bars for large datasets
-- ✅ **Robust error handling**: Clear error messages and graceful failure handling
+```
+   Snapshot  ───►  EAVT log  ───►  SCD Type 2
+```
 
-## Table of Contents
+## Why these three shapes?
 
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Snapshot to EAVT Log](#snapshot-to-eavt-log)
-  - [EAVT Log to Slowly Changing Dimension](#eavt-log-to-slowly-changing-dimension)
-- [Performance Optimization](#performance-optimization)
-- [Development](#development)
-- [Testing](#testing)
+If you've worked with slowly-changing data, you've probably hit all three:
 
-## Installation
+- **Snapshots** are easy to produce (just dump the table every day) but wasteful — most rows are unchanged copies of the previous day's row.
+- **EAVT logs** (`entity, attribute, value, time`) are the change-data-capture form: append-only, one row per actual change. Compact, but awkward to query without pivoting.
+- **SCD Type 2** is the warehouse-friendly form: wide rows with `row_effective_tstamp` and `row_expiration_tstamp` marking each version's validity window. Easy to query "what did this row look like on date X."
 
-### From Source
-Clone the repository and install in development mode:
+This tool converts one shape into the next. See `examples/` for a 5-minute walkthrough.
+
+## Install
 
 ```bash
-git clone https://github.com/vmjulio/eavt-helper.git
-cd eavt-helper
 pip install --editable .
 ```
 
-### Development Installation
-Install with development dependencies:
-
-```bash
-pip install --editable .[dev]
-```
+(PyPI release coming.)
 
 ## Usage
 
-### Snapshot to EAVT Log
+### Snapshot → EAVT
 
-Convert a snapshot table into an EAVT log. Your CSV must have:
-- A unique column identifying entities (`--id-col`)
-- A timestamp column (`--tstamp-col`) indicating when the snapshot was taken
+Your CSV needs a unique entity-id column and a timestamp column marking when the snapshot was taken.
 
-**Basic Usage:**
 ```bash
 eavt-helper snapshot-to-eavt \
-  --id-col user_id \
-  --tstamp-col row_effective_tstamp \
+  --id-column user_id \
+  --tstamp-column row_effective_tstamp \
   --snapshot-path snapshot.csv \
-  --out-path output.csv
+  --out-path eavt.csv
 ```
 
-**Short Form:**
-```bash
-eavt-helper snapshot-to-eavt \
-  -i user_id \
-  -t row_effective_tstamp \
-  -p snapshot.csv \
-  -o output.csv
-```
+### EAVT → SCD Type 2
 
-**Large Dataset Processing:**
-```bash
-eavt-helper snapshot-to-eavt \
-  -i user_id \
-  -t row_effective_tstamp \
-  -p large_snapshot.csv \
-  -o output.csv \
-  --chunk-size 10000
-```
+Your EAVT log must have columns `e`, `a`, `v`, `t`.
 
-### EAVT Log to Slowly Changing Dimension
-
-Convert an EAVT log into SCD Type 2 format. Your EAVT log must have columns: `e`, `a`, `v`, `t`.
-
-**Basic Usage:**
 ```bash
 eavt-helper eavt-to-scd \
-  --eavt-path eavt_log.csv \
-  --out-path output_scd2.csv
+  --eavt-path eavt.csv \
+  --out-path scd2.csv
 ```
 
-**Short Form:**
+### Chunked processing
+
+For larger datasets, pass `--chunk-size`:
+
 ```bash
-eavt-helper eavt-to-scd -p eavt_log.csv -o output_scd2.csv
+eavt-helper snapshot-to-eavt -i user_id -t row_effective_tstamp \
+  -p snapshot.csv -o eavt.csv --chunk-size 10000
 ```
 
-**Large Dataset Processing:**
-```bash
-eavt-helper eavt-to-scd \
-  -p large_eavt_log.csv \
-  -o output_scd2.csv \
-  --chunk-size 5000
-```
-
-## Performance Optimization
-
-### Chunked Processing
-
-For large datasets, use the `--chunk-size` parameter to process data in chunks:
-
-- **Snapshot to EAVT**: Processes rows in chunks of specified size
-- **EAVT to SCD2**: Processes entities in chunks to maintain data integrity
-
-**Recommended chunk sizes:**
-- Small datasets (< 100K rows): No chunking needed
-- Medium datasets (100K - 1M rows): `--chunk-size 10000`
-- Large datasets (> 1M rows): `--chunk-size 50000`
-
-### Memory Management
-
-The tool automatically:
-- Validates input data before processing
-- Provides progress indicators for long-running operations
-- Uses efficient pandas operations with method chaining
-- Manages memory usage through chunked processing
+**What chunking does and doesn't do:** the CSV is still read into memory in full (pandas `read_csv`). Chunking applies to the *transformation* step — the dataset is processed in batches **grouped by entity ID** so an entity's full history is never split across chunks. This bounds peak memory during the pivot/stack/groupby steps, which is usually the spike. For truly large datasets (tens of GB), reach for DuckDB or Polars instead.
 
 ## Development
 
-### Project Structure
-```
-eavt-helper/
-├── eavt_helper/
-│   ├── classes/           # Core transformation classes
-│   ├── commands/          # CLI command implementations
-│   ├── help/              # Help text and documentation
-│   └── main.py           # CLI entry point
-├── tests/                 # Unit tests
-├── setup.py              # Package configuration
-└── README.md
-```
-
-### Running Tests
-
 ```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=eavt_helper
-
-# Run specific test file
-pytest tests/test_snapshot.py
-
-# Run tests with verbose output
-pytest -v
+pip install --editable ".[dev]"
+make lint        # ruff
+make typecheck   # mypy strict
+make test        # pytest
+make format      # auto-fix lint + formatting
 ```
 
-### Code Quality
-
-The project includes:
-- Comprehensive unit tests with pytest
-- Type hints for better code clarity
-- Docstrings for all public methods
-- Error handling and input validation
-- Progress tracking for user feedback
+See `CONTRIBUTING.md` for the PR workflow.
 
 ## Requirements
 
-- Python 3.8+
-- pandas >= 1.3.0
-- click >= 8.0.0
-- numpy >= 1.20.0
+- Python 3.10+
+- pandas >= 1.3
+- click >= 8.0
+- numpy >= 1.20
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT — see `LICENSE`.
 
