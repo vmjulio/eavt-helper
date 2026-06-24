@@ -4,13 +4,12 @@ Specifically tests that chunk-by-entity grouping prevents an entity's history
 from being split across chunks (which would produce duplicate EAVT rows at
 chunk boundaries — see Task 3/4 of the public-release-prep plan).
 """
+
 import os
 import tempfile
 from unittest.mock import patch
 
 import pandas as pd
-import pytest
-
 from eavt_helper.classes.snapshot import Snapshot
 
 
@@ -24,19 +23,31 @@ class TestSnapshotChunkingByEntity:
         # 'name' rows in the EAVT output instead of just one.
         rows = []
         for entity_id in range(1, 7):
-            rows.extend([
-                {"user_id": entity_id, "timestamp": "2024-01-01",
-                 "name": f"user_{entity_id}", "age": 20},
-                {"user_id": entity_id, "timestamp": "2024-02-01",
-                 "name": f"user_{entity_id}", "age": 21},
-                {"user_id": entity_id, "timestamp": "2024-03-01",
-                 "name": f"user_{entity_id}", "age": 22},
-            ])
+            rows.extend(
+                [
+                    {
+                        "user_id": entity_id,
+                        "timestamp": "2024-01-01",
+                        "name": f"user_{entity_id}",
+                        "age": 20,
+                    },
+                    {
+                        "user_id": entity_id,
+                        "timestamp": "2024-02-01",
+                        "name": f"user_{entity_id}",
+                        "age": 21,
+                    },
+                    {
+                        "user_id": entity_id,
+                        "timestamp": "2024-03-01",
+                        "name": f"user_{entity_id}",
+                        "age": 22,
+                    },
+                ]
+            )
         self.df = pd.DataFrame(rows)
 
-        self.tmp = tempfile.NamedTemporaryFile(
-            mode="w", suffix=".csv", delete=False
-        )
+        self.tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False)
         self.df.to_csv(self.tmp.name, index=False)
         self.tmp.close()
 
@@ -45,10 +56,7 @@ class TestSnapshotChunkingByEntity:
             os.unlink(self.tmp.name)
 
     def _eavt_sorted(self, df: pd.DataFrame) -> pd.DataFrame:
-        return (
-            df.sort_values(["e", "a", "t"])
-              .reset_index(drop=True)
-        )
+        return df.sort_values(["e", "a", "t"]).reset_index(drop=True)
 
     def test_snapshot_chunking_matches_unchunked(self):
         """Chunked transform must produce the same EAVT rows as unchunked."""

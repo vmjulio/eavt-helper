@@ -10,7 +10,7 @@ help:
 	@echo "make test           - Run all tests"
 	@echo "make test-coverage  - Run tests with coverage report"
 	@echo "make lint           - Run code linting"
-	@echo "make format         - Format code with black"
+	@echo "make format         - Format code with ruff"
 	@echo "make clean          - Clean up build artifacts"
 
 install:
@@ -26,12 +26,13 @@ test-coverage:
 	python -m pytest tests/ -v --cov=eavt_helper --cov-report=term-missing --cov-report=html
 
 lint:
-	@echo "🔍 Running code linting..."
-	flake8 eavt_helper/ tests/ --max-line-length=100 --ignore=E203,W503
+	@echo "🔍 Running ruff lint..."
+	ruff check eavt_helper tests
 
 format:
-	@echo "🎨 Formatting code with black..."
-	black eavt_helper/ tests/ --line-length=100
+	@echo "🎨 Formatting with ruff..."
+	ruff format eavt_helper tests
+	ruff check --fix eavt_helper tests
 
 clean:
 	@echo "🧹 Cleaning up build artifacts..."

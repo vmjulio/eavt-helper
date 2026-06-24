@@ -1,4 +1,5 @@
 """eavt-helper — convert snapshots ↔ EAVT logs ↔ SCD Type 2 tables."""
+
 from importlib.metadata import PackageNotFoundError, version
 
 try:
