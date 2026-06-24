@@ -139,7 +139,9 @@ class Snapshot:
     def _with_stack_reset_index(self, df: pd.DataFrame) -> pd.DataFrame:
         return df.stack().reset_index()
 
-    def _with_rename_cols_eavt(self, df: pd.DataFrame, id_col: str, tstamp_col: str) -> pd.DataFrame:
+    def _with_rename_cols_eavt(
+        self, df: pd.DataFrame, id_col: str, tstamp_col: str
+    ) -> pd.DataFrame:
         return df.rename(columns={id_col: "e", "level_2": "a", 0: "v", tstamp_col: "t"})
 
     def _with_order_eavt(self, df: pd.DataFrame) -> pd.DataFrame:
