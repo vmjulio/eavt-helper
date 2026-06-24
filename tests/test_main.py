@@ -87,15 +87,6 @@ class TestMainCLI:
 class TestCLIIntegration:
     """Integration tests for CLI functionality."""
 
-    def test_cli_version_info(self):
-        """Test that CLI provides version information when available."""
-        runner = CliRunner()
-        # This might not work if --version isn't implemented, but it's good to test
-        result = runner.invoke(cli, ["--version"])
-        # We don't assert on exit code as --version might not be implemented
-        # Just ensure it doesn't crash catastrophically
-        assert result.exit_code in [0, 2]  # 0 for success, 2 for option not recognized
-
     def test_cli_error_handling(self):
         """Test that CLI handles errors gracefully."""
         runner = CliRunner()

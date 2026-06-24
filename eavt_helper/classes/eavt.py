@@ -67,20 +67,26 @@ class EAVT:
             raise
 
     def _process_in_chunks(self, chunk_size: int) -> pd.DataFrame:
-        """Process large datasets in chunks to manage memory usage."""
-        # Group by entity to ensure we don't split entity histories across chunks
+        """Process large datasets in chunks of entities to manage memory usage."""
+        # Chunking is done by entity ID so an entity's full history is always
+        # contained within a single chunk — required for the per-entity
+        # forward-fill in `_with_ffil` and the per-entity expiration timestamp
+        # in `_with_row_expiration_tstamp` to be correct.
         entities = self.df["e"].unique()
-        results = []
+        avg_rows_per_entity = max(1, len(self.df) / max(1, len(entities)))
+        entities_per_chunk = max(1, int(chunk_size / avg_rows_per_entity))
 
-        total_entities = len(entities)
-        entities_per_chunk = max(1, chunk_size // 100)  # Rough estimate
+        results = []
+        total_entity_chunks = (len(entities) + entities_per_chunk - 1) // entities_per_chunk
 
         with click.progressbar(
-            range(0, total_entities, entities_per_chunk), label="Processing entity chunks"
+            range(0, len(entities), entities_per_chunk),
+            label="Processing entity chunks",
+            length=total_entity_chunks,
         ) as bar:
-            for i in bar:
-                end_idx = min(i + entities_per_chunk, total_entities)
-                chunk_entities = entities[i:end_idx]
+            for start in bar:
+                end = min(start + entities_per_chunk, len(entities))
+                chunk_entities = entities[start:end]
                 chunk_df = self.df[self.df["e"].isin(chunk_entities)].copy()
 
                 processed_chunk = self._transform_single_chunk(chunk_df)
