@@ -2,7 +2,7 @@
 
 Specifically tests that chunk-by-entity grouping prevents an entity's history
 from being split across chunks (which would produce duplicate EAVT rows at
-chunk boundaries — see Task 3/4 of the public-release-prep plan).
+chunk boundaries).
 """
 
 import os
