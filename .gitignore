@@ -127,3 +127,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Subagent-driven development scratch (per-session task briefs, reports, ledger)
+.superpowers/

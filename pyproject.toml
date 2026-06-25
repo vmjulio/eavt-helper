@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "eavt-helper"
+version = "0.3.0"
+description = "CLI tool to convert snapshots to EAVT logs and EAVT logs to Slowly Changing Dimensions"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Vitor Julio" }]
+keywords = ["eavt", "scd", "slowly-changing-dimension", "data-engineering", "etl"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "click>=8.0.0,<9.0.0",
+    "pandas>=1.3.0,<3.0.0",
+    "numpy>=1.20.0",
+    "python-dateutil>=2.8.0",
+    "pytz>=2021.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "ruff>=0.4.0",
+    "mypy>=1.8.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/vmjulio/eavt-helper"
+Repository = "https://github.com/vmjulio/eavt-helper"
+Issues = "https://github.com/vmjulio/eavt-helper/issues"
+
+[project.scripts]
+eavt-helper = "eavt_helper.main:cli"
+
+[tool.setuptools.packages.find]
+include = ["eavt_helper*"]
+exclude = ["tests*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short --strict-markers --disable-warnings"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["eavt_helper", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E203",  # whitespace before ':' — conflicts with black/ruff format
+    "E501",  # line too long — handled by formatter
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011", "SIM115"]  # asserts in tests are fine; NamedTemporaryFile pattern requires explicit .close()
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
+files = ["eavt_helper"]
+# pandas has incomplete stubs; allow untyped calls when interacting with it.
+disallow_untyped_calls = false
+warn_return_any = false
+
+[[tool.mypy.overrides]]
+module = ["pandas.*", "click.*"]
+ignore_missing_imports = true
